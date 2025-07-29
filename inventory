@@ -1,0 +1,23 @@
+[almalinux_servers]
+ansible-master ansible_host=192.168.1.198 ansible_connection=local
+almalinux-target ansible_host=192.168.1.150 ansible_user=root
+
+[local]
+ansible-master ansible_host=192.168.1.198 ansible_connection=local
+
+[remote]
+almalinux-target ansible_host=192.168.1.150 ansible_user=root
+
+# Variabile pentru grupuri
+[almalinux_servers:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+[local:vars]
+ansible_connection=local
+
+[remote:vars]
+ansible_user=root
+ansible_ssh_private_key_file=/root/.ssh/id_rsa
+ansible_become=yes
+ansible_become_method=sudo
