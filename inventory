@@ -1,12 +1,12 @@
 [almalinux_servers]
 ansible-master ansible_host=192.168.1.198 ansible_connection=local
-almalinux-target ansible_host=192.168.1.150 ansible_user=root
+almalinux-target ansible_host=192.168.1.150 ansible_user=ansible_suer
 
 [local]
 ansible-master ansible_host=192.168.1.198 ansible_connection=local
 
 [remote]
-almalinux-target ansible_host=192.168.1.150 ansible_user=root
+almalinux-target ansible_host=192.168.1.150 ansible_user=ansible_user
 
 # Variabile pentru grupuri
 [almalinux_servers:vars]
