@@ -217,3 +217,38 @@ ansible -i inventory almalinux_servers -m command -a "df -h"
 ansible -i inventory almalinux_servers -m command -a "free -h"
 
 
+
+la final am creat un user pt ansible , pt target , ca era periculos root ul dpdv al securitatii 
+Configurare Securizată cu User Dedicat (ansible_user)
+🔒 De ce să nu folosești root?
+
+Risc de securitate: Acces complet la sistem
+Best practice: Principiul "least privilege"
+Audit: Mai ușor de urmărit acțiunile
+
+📋 Pași pentru setup securizat:
+1. Creează user dedicat pe target
+bashansible -i inventory almalinux-target -m user -a "name=ansible_user state=present groups=wheel" --become
+2. Configurează sudo fără parolă
+bashansible -i inventory almalinux-target -m shell -a "echo 'ansible_user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/ansible_user" --become
+3. Creează directorul .ssh pentru noul user
+bashansible -i inventory almalinux-target -m file -a "path=/home/ansible_user/.ssh state=directory mode=0700 owner=ansible_user" --become
+4. Copiază SSH keys pentru noul user
+bashansible -i inventory almalinux-target -m copy -a "src=/root/.ssh/id_rsa.pub dest=/tmp/ansible_key.pub" --become
+ansible -i inventory almalinux-target -m shell -a "cat /tmp/ansible_key.pub >> /home/ansible_user/.ssh/authorized_keys && chown ansible_user:ansible_user /home/ansible_user/.ssh/authorized_keys && chmod 600 /home/ansible_user/.ssh/authorized_keys" --become
+5. Testează conexiunea SSH
+bashssh ansible_user@192.168.1.150
+exit
+6. Actualizează inventory-ul
+ini[remote]
+almalinux-target ansible_host=192.168.1.150 ansible_user=ansible_user ansible_become=yes
+
+[remote:vars]
+ansible_user=ansible_user
+ansible_ssh_private_key_file=/root/.ssh/id_rsa
+ansible_become=yes
+ansible_become_method=sudo
+7. Testează Ansible cu noul user
+bashansible -i inventory almalinux_servers -m ping
+ansible -i inventory remote -m command -a "whoami" --become
+
